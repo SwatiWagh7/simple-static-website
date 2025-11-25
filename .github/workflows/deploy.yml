@@ -21,12 +21,12 @@ jobs:
 
     - name: Copy HTML Website to Production EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.SSH_USERNAME }}@${{ secrets.PROD_SERVER_IP }} "mkdir -p /tmp/app"
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/prod_key *.html *.css *.js ${{ secrets.SSH_USERNAME }}@${{ secrets.PROD_SERVER_IP }}:/tmp/app || true
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir -p /tmp/app"
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/prod_key *.html *.css *.js ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/app || true
 
     - name: Deploy to /var/www/html (Amazon Linux)
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.SSH_USERNAME }}@${{ secrets.PROD_SERVER_IP }} "
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "
           sudo rm -rf /var/www/html/* &&
           sudo cp -r /tmp/app/* /var/www/html/ &&
           sudo systemctl restart httpd &&
