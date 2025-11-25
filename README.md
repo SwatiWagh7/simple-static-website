@@ -1,4 +1,5 @@
 # EC2-to-EC2 CI/CD Pipeline (Developer → GitHub → Production)
+![Uploading image.png…]()
 
 This guide explains how to set up a complete CI/CD pipeline using **two EC2 instances**, **GitHub**, and **GitHub Actions**. Any code changes made on the *Developer EC2* will automatically deploy to the *Production EC2*.
 
