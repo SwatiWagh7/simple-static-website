@@ -3,14 +3,14 @@ name: Deploy Static Website to Production EC2
 on:
   push:
     branches:
-      - main   # whenever developer pushes new code
+      - main     # Deploy whenever code is pushed to main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout Code
       uses: actions/checkout@v3
 
     - name: Setup SSH Key
@@ -19,8 +19,15 @@ jobs:
         echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/prod_key
         chmod 600 ~/.ssh/prod_key
 
-    - name: Deploy to Production EC2
+    - name: Copy HTML Website Files to Production EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ec2-user@54.226.173.229 "sudo rm -rf /var/www/html/*"
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/prod_key -r ./ ec2-user@54.226.173.229:/home/ec2-user/app
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ec2-user@54.226.173.229 "sudo cp -r /home/ec2-user/app/* /var/www/html/"
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/prod_key -r *.html *.css *.js ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/app || true
+
+    - name: Deploy to /var/www/html on Amazon Linux
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "
+          sudo rm -rf /var/www/html/* &&
+          sudo cp -r /tmp/app/* /var/www/html/ &&
+          sudo systemctl restart httpd &&
+          echo 'Deployment Successful!'
+        "
