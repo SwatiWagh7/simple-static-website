@@ -3,7 +3,7 @@ name: Deploy Static Website to Production EC2
 on:
   push:
     branches:
-      - main     # Deploy whenever code is pushed to main
+      - main   # Deploy whenever you push to main
 
 jobs:
   deploy:
@@ -19,11 +19,12 @@ jobs:
         echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/prod_key
         chmod 600 ~/.ssh/prod_key
 
-    - name: Copy HTML Website Files to Production EC2
+    - name: Copy HTML Website to Production EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/prod_key -r *.html *.css *.js ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/app || true
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "mkdir -p /tmp/app"
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/prod_key *.html *.css *.js ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/app || true
 
-    - name: Deploy to /var/www/html on Amazon Linux
+    - name: Deploy to /var/www/html (Amazon Linux)
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/prod_key ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} "
           sudo rm -rf /var/www/html/* &&
